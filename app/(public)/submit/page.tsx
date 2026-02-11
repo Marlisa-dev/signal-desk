@@ -3,7 +3,6 @@ import React, { useState, useRef } from "react";
 import styles from "./page.module.css";
 
 export default function Page() {
-  // const [message, setMessage] = useState('');
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -120,20 +119,7 @@ export default function Page() {
               />
             </div>
 
-            {/* <div className={styles.field}>
-            <label htmlFor="file-upload">
-              Upload supporting document (optional)
-            </label>
-
-            <input
-              id="file-upload"
-              name="attachment"
-              type="file"
-              accept=".png,.jpg,.jpeg,.pdf"
-              className={styles.file_upload}
-            />
-          </div> */}
-
+              {/* Document Upload */}
             <div className={styles.field}>
               <label>Upload supporting document (optional)</label>
 
