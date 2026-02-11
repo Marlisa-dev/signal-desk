@@ -7,6 +7,8 @@
   text-align: center;
   background-color: rgb(246, 168, 103);
   border: 1px solid rgb(225, 118, 30);
+  background-color: rgb(152, 250, 202);
+  border: 1px solid rgb(109, 182, 147);
   border-radius: 5px;
   margin-bottom: 1rem;
 }
@@ -50,6 +52,10 @@
   border: none;
   font-weight: 700;
 }
+.form input.file_upload:hover {
+  background-color: rgb(41, 41, 41);
+  transition: 0.2s ease-in-out;
+}
 
 .row{
     display: flex;
@@ -68,4 +74,9 @@
     cursor: pointer;
     margin-top: 10px;
     width: 100%
+}
+.button:hover{
+    background-color: rgb(41, 41, 41);
+    transition: 0.2s ease-in-out;
+
 }
