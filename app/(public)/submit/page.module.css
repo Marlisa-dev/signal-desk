@@ -1,22 +1,54 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+.formWrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  min-height: 100vh;    
+  background-color: rgb(52, 52, 52);
+
+}
 .ticketBody {
   width: 500px;
   margin: 2rem auto;
+  max-width: 90%;
+  height: auto;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 7px;
 }
-
 .intro {
   text-align: center;
-  background-color: rgb(246, 168, 103);
-  border: 1px solid rgb(225, 118, 30);
-  background-color: rgb(152, 250, 202);
-  border: 1px solid rgb(109, 182, 147);
-  border-radius: 5px;
-  margin-bottom: 1rem;
 }
-
-.intro h2 {
-  font-size: 20px;
+.intro h1 {
   font-weight: bold;
   padding: 10px 0;
+  text-align: center;
+  color: rgb(52, 52, 52);
+  margin-bottom: 0;
+}
+.intro p{
+  margin-top: 0;
+}
+
+.success{
+  background-color: rgb(152, 250, 202);
+  border: 1px solid rgb(109, 182, 147);
+  padding: 6px;
+  border-radius: 5px;
+  font-weight: 700;
+  display: inline-block;
+}
+.error{
+  background-color: rgb(255, 162, 139);
+  border: 1px solid rgb(249, 92, 53);
+  padding: 6px;
+  border-radius: 5px;
+  font-weight: 700;
+  display: inline-block;
 }
 
 .form {
@@ -32,10 +64,13 @@
 .form input,
 .form select,
 .form textarea {
-  border: 1px solid rgb(232, 232, 232);
+  border: 1px solid rgb(226, 226, 226);
   padding: 8px;
-  background-color: rgb(250, 249, 249);
+  background-color: rgb(255, 255, 255);
   outline: none;
+  border-radius: 4px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 16px;
 }
 
 .field {
@@ -45,15 +80,14 @@
   
 }
 .form input.file_upload {
-  background-color: rgb(52, 52, 52);
-  color: white;
   border-radius: 3px;
+  padding: 1px;
   font-size: 12px;
   border: none;
-  font-weight: 700;
+  /* font-weight: 700; */
 }
 .form input.file_upload:hover {
-  background-color: rgb(41, 41, 41);
+  /* background-color: rgb(41, 41, 41); */
   transition: 0.2s ease-in-out;
 }
 
@@ -61,7 +95,6 @@
     display: flex;
     flex-direction: row; 
     gap: 12px;;
-    
 }
 
 .button{
