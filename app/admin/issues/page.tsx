@@ -3,11 +3,16 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation' 
 import { Ticket } from "@/lib/types"
 import styles from "./page.module.css";
+import StatusBadge from "@/components/StatusBadge"
+import PriorityBadge from "@/components/PriorityBadge"
+import TypeBadge from "@/components/TypeBadge"
 
 export default function IssuesPage() {
   const router = useRouter();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    
 
   useEffect(() => {
     async function fetchTickets() {
@@ -38,6 +43,7 @@ export default function IssuesPage() {
             <th>Name</th>
             <th>Type</th>
             <th>Status</th>
+            <th>Priority</th>
             <th>Created</th>
           </tr>
         </thead>
@@ -50,8 +56,9 @@ export default function IssuesPage() {
               <td>{ticket.id}</td>
               <td>{ticket.title}</td>
               <td>{ticket.firstName} {ticket.lastName}</td>
-              <td>{ticket.type}</td>
-              <td>{ticket.status}</td>
+              <td><TypeBadge ticketType={ticket.type} /></td>
+              <td><StatusBadge status={ticket.status} /></td>
+              <td><PriorityBadge priority={ticket.priority} /></td>
               <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
             </tr>
           ))}

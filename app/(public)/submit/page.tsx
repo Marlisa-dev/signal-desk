@@ -26,6 +26,7 @@ export default function Page() {
       lname: formData.get("lname") as string,
       description: formData.get("description") as string,
       type: formData.get("type") as string,
+      priority: formData.get("priority") as string,
       attachment: selectedFile,
     };
 
@@ -119,7 +120,7 @@ export default function Page() {
               />
             </div>
 
-              {/* Document Upload */}
+            {/* Document Upload */}
             <div className={styles.field}>
               <label>Upload supporting document (optional)</label>
 
@@ -181,12 +182,23 @@ export default function Page() {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="ticket-type">What type of request is this?*</label>
+              <label htmlFor="ticket-type">
+                What type of request is this?*
+              </label>
               <select id="ticket-type" name="type" required>
                 <option value="">Select an option below</option>
                 <option value="bug">Reporting a Bug</option>
                 <option value="idea">New Idea</option>
                 <option value="feedback">Feedback</option>
+              </select>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="priority">Priority Level*</label>
+              <select id="priority" name="priority" required>
+                <option value="">Select priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
             </div>
 

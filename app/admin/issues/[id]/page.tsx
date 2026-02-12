@@ -3,6 +3,9 @@ import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Ticket } from '@/lib/types'
 import styles from './page.module.css'
+import StatusBadge from "@/components/StatusBadge"
+import PriorityBadge from "@/components/PriorityBadge"
+import TypeBadge from "@/components/TypeBadge"
 
 export default function IssueDetailPage({ 
   params 
@@ -52,15 +55,15 @@ export default function IssueDetailPage({
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Type</span>
-            <span className={styles.detailValue}>{ticket.type}</span>
+            <span><TypeBadge ticketType={ticket.type} /> </span>
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Status</span>
-            <span className={styles.detailValue}>{ticket.status}</span>
+            <span><StatusBadge status={ticket.status} /> </span>
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Priority</span>
-            <span className={styles.detailValue}>{ticket.priority}</span>
+            <span><PriorityBadge priority={ticket.priority} /> </span>
           </div>
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Created</span>

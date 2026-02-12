@@ -14,6 +14,7 @@ export async function POST(request: Request) {
         lastName: body.lname,
         description: body.description,
         type: body.type,
+        priority: body.priority,
         attachment: body.attachment || null, // Make sure null if no file
       },
     });
