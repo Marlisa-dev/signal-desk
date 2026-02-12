@@ -79,7 +79,7 @@ export default function Page() {
         <div className={styles.form}>
           <form onSubmit={handleSubmit}>
             <div className={styles.field}>
-              <label htmlFor="title">Title of your request</label>
+              <label htmlFor="title">Title of your request*</label>
               <input
                 id="title"
                 name="title"
@@ -90,7 +90,7 @@ export default function Page() {
             </div>
 
             <div className={styles.field}>
-              <label>Name</label>
+              <label>Name*</label>
               <div className={styles.row}>
                 <input
                   id="fname"
@@ -110,7 +110,7 @@ export default function Page() {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="description">Description of your request</label>
+              <label htmlFor="description">Description of your request*</label>
               <textarea
                 id="description"
                 name="description"
@@ -181,7 +181,7 @@ export default function Page() {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="ticket-type">What type of request is this?</label>
+              <label htmlFor="ticket-type">What type of request is this?*</label>
               <select id="ticket-type" name="type" required>
                 <option value="">Select an option below</option>
                 <option value="bug">Reporting a Bug</option>
