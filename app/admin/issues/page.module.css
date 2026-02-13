@@ -56,3 +56,59 @@
 .table tbody tr:last-child td {
   border-bottom: none;
 }
+
+.filters {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filters select {
+  padding: .5rem 1rem .5rem 0.5rem;
+  border: 1px solid rgb(209, 213, 219);
+  border-radius: 6px;
+  background-color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.filters select:hover {
+  border-color: rgb(156, 163, 175);
+}
+
+.dateFilters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dateFilters input[type="date"] {
+  padding: 0.5rem;
+  border: 1px solid rgb(209, 213, 219);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.dateFilters span {
+  color: rgb(107, 114, 128);
+  font-size: 0.875rem;
+}
+
+.resetButton {
+  padding: 0.5rem 1rem;
+  background-color: rgb(52, 52, 52);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s;
+}
+
+.resetButton:hover {
+  background-color: rgb(27, 27, 27);
+  transition: 0.2s ease-in-out;
+}
