@@ -13,10 +13,10 @@ export default function HomePage() {
         </p>
 
         <div className={styles.actions}>
-          <Link href="/submit" className={styles.button}>
+          <Link href="/submit" className={styles.button} target="_blank">
             Submit User Feedback
           </Link>
-          <Link href="/admin/issues" className={styles.button}>
+          <Link href="/admin/issues" className={styles.button} target="_blank">
             View Admin Dashboard
           </Link>
         </div>
