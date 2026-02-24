@@ -1,108 +1,119 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation' 
-import { Ticket } from "@/lib/types"
+import { useRouter, useSearchParams } from "next/navigation";
+import { Ticket } from "@/lib/types";
 import styles from "./page.module.css";
-import StatusBadge from "@/components/StatusBadge"
-import PriorityBadge from "@/components/PriorityBadge"
-import TypeBadge from "@/components/TypeBadge"
+import StatusBadge from "@/components/StatusBadge";
+import PriorityBadge from "@/components/PriorityBadge";
+import TypeBadge from "@/components/TypeBadge";
 
 export default function IssuesPage() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const router = useRouter()
+
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Filter state only (no sorting)
-  const [filterType, setFilterType] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterPriority, setFilterPriority] = useState<string>('all');
-  const [filterDateFrom, setFilterDateFrom] = useState<string>('');
-  const [filterDateTo, setFilterDateTo] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const filterType = searchParams.get("type") ?? "all";
+  const filterStatus = searchParams.get("status") ?? "all";
+  const filterPriority = searchParams.get("priority") ?? "all";
+  const filterDateFrom = searchParams.get("dateFrom") ?? "";
+  const filterDateTo = searchParams.get("dateTo") ?? "";
+
+  const rawPage = Number(searchParams.get("page"));
+  const currentPage = !isNaN(rawPage) && rawPage > 0 ? rawPage : 1;
 
   const limit = 10;
 
-  // Filter function (no sorting)
-  // function getFilteredTickets() {
-  //   return tickets.filter(ticket => {
-  //     if (filterType !== 'all' && ticket.type !== filterType) return false;
-  //     if (filterStatus !== 'all' && ticket.status !== filterStatus) return false;
-  //     if (filterPriority !== 'all' && ticket.priority !== filterPriority) return false;
-      
-  //     // Date filtering
-  //     const ticketDate = new Date(ticket.createdAt);
-  //     if (filterDateFrom && ticketDate < new Date(filterDateFrom)) return false;
-  //     if (filterDateTo && ticketDate > new Date(filterDateTo)) return false;
-      
-  //     return true;
-  //   });
-  // }
+  function updateParam(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "all" || value === "") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
 
-  function resetFilters() {
-  setFilterType('all');
-  setFilterStatus('all');
-  setFilterPriority('all');
-  setFilterDateFrom('');
-  setFilterDateTo('');
-}
-useEffect(() => {
-  setCurrentPage(1);
-}, [filterType, filterStatus, filterPriority]);
+    params.set("page", "1"); 
+    router.push(`/admin/issues?${params.toString()}`);
+  }
 
   useEffect(() => {
     async function fetchTickets() {
       setIsLoading(true);
-      
-      const params = new URLSearchParams({
-        type: filterType,
-        status: filterStatus,
-        priority: filterPriority,
-        page: String(currentPage),
-        limit: String(limit),
-          dateFrom: filterDateFrom,
-  dateTo: filterDateTo
-      })
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("limit", String(limit));
+        const res = await fetch(`/api/tickets?${params.toString()}`);
 
-      // TODO: get  dateFrom: filterDateFrom and dateTo: filterDateTo handled in prisma
+        if (!res.ok) {
+          throw new Error("Failed to fetch tickets");
+        }
 
-      const res = await fetch(`/api/tickets?${params.toString()}`);
-      const data = await res.json();
+        const data = await res.json();
 
-      console.log(data)
+        setTickets(data.data);
+        setTotal(data.total);
 
-      // const data = await fetch("/api/tickets")
-      // const getTickets = await data.json()
-      setTickets(data.data) 
-      setTotal(data.total)
+        const totalPages = Math.ceil(data.total / limit);
 
-      setIsLoading(false);
+        if (currentPage > totalPages && totalPages > 0) {
+          const updatedParams = new URLSearchParams(searchParams.toString());
+          updatedParams.set("page", String(totalPages));
+          router.replace(`/admin/issues?${updatedParams.toString()}`);
+          return;
+        }
+      } catch (error) {
+        setError("Unable to load tickets");
+        console.error(error);
+        setTickets([]);
+        setTotal(0);
+      } finally {
+        setIsLoading(false);
+      }
     }
-    fetchTickets();
-  }, [filterType, filterStatus, filterPriority, currentPage])
 
-  
-  
+    fetchTickets();
+  }, [searchParams.toString()]);
+  function changePage(page: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    router.push(`/admin/issues?${params.toString()}`);
+  }
+  function resetFilters() {
+    router.push("/admin/issues");
+  }
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>Issues</h1>
-      
+
       <div className={styles.filters}>
-        <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+        <select
+          value={filterType}
+          onChange={(e) => updateParam("type", e.target.value)}
+        >
           <option value="all">All Types</option>
           <option value="bug">Bug</option>
           <option value="idea">Idea</option>
           <option value="feedback">Feedback</option>
         </select>
-        
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+
+        <select
+          value={filterStatus}
+          onChange={(e) => updateParam("status", e.target.value)}
+        >
           <option value="all">All Statuses</option>
           <option value="open">Open</option>
           <option value="in-progress">In Progress</option>
           <option value="closed">Closed</option>
         </select>
-        
-        <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
+
+        <select
+          value={filterPriority}
+          onChange={(e) => updateParam("priority", e.target.value)}
+        >
           <option value="all">All Priorities</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
@@ -110,28 +121,25 @@ useEffect(() => {
         </select>
 
         <div className={styles.dateFilters}>
-          <input 
-            type="date" 
+          <input
+            type="date"
             value={filterDateFrom}
-            onChange={(e) => setFilterDateFrom(e.target.value)}
+            onChange={(e) => updateParam("dateFrom", e.target.value)}
             placeholder="From"
           />
           <span>to</span>
-          <input 
-            type="date" 
+          <input
+            type="date"
             value={filterDateTo}
-            onChange={(e) => setFilterDateTo(e.target.value)}
+            onChange={(e) => updateParam("dateTo", e.target.value)}
             placeholder="To"
           />
         </div>
-          <button 
-    onClick={resetFilters}
-    className={styles.resetButton}
-  >
-    Reset Filters
-  </button>
+        <button onClick={resetFilters} className={styles.resetButton}>
+          Reset Filters
+        </button>
       </div>
-      
+
       {isLoading ? (
         <div className={styles.loading}>Loading...</div>
       ) : tickets.length === 0 ? (
@@ -151,49 +159,52 @@ useEffect(() => {
           </thead>
           <tbody>
             {tickets.map((ticket) => (
-              <tr 
+              <tr
                 key={ticket.id}
                 onClick={() => router.push(`/admin/issues/${ticket.id}`)}
               >
                 <td>{ticket.id}</td>
                 <td>{ticket.title}</td>
-                <td>{ticket.firstName} {ticket.lastName}</td>
-                <td><TypeBadge ticketType={ticket.type} /></td>
-                <td><StatusBadge status={ticket.status} /></td>
-                <td><PriorityBadge priority={ticket.priority} /></td>
+                <td>
+                  {ticket.firstName} {ticket.lastName}
+                </td>
+                <td>
+                  <TypeBadge ticketType={ticket.type} />
+                </td>
+                <td>
+                  <StatusBadge status={ticket.status} />
+                </td>
+                <td>
+                  <PriorityBadge priority={ticket.priority} />
+                </td>
                 <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        
       )}
 
       {total > 0 && (
+        <div className={styles.pagination}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => changePage(currentPage - 1)}
+          >
+            Previous
+          </button>
 
+          <span>
+            Page {currentPage} of {Math.ceil(total / limit)}
+          </span>
 
-      <div className={styles.pagination}>
-  <button
-    disabled={currentPage === 1}
-    onClick={() => setCurrentPage(p => p - 1)}
-  >
-    Previous
-  </button>
-
-  <span>
-    Page {currentPage} of {Math.ceil(total / limit)}
-  </span>
-
-  <button
-    disabled={currentPage >= Math.ceil(total / limit)}
-    onClick={() => setCurrentPage(p => p + 1)}
-  >
-    Next
-  </button>
-</div>
+          <button
+            disabled={currentPage >= Math.ceil(total / limit)}
+            onClick={() => changePage(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
-    
-  )
+  );
 }
