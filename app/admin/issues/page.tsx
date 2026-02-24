@@ -18,22 +18,26 @@ export default function IssuesPage() {
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterDateFrom, setFilterDateFrom] = useState<string>('');
   const [filterDateTo, setFilterDateTo] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  const limit = 10;
 
   // Filter function (no sorting)
-  function getFilteredTickets() {
-    return tickets.filter(ticket => {
-      if (filterType !== 'all' && ticket.type !== filterType) return false;
-      if (filterStatus !== 'all' && ticket.status !== filterStatus) return false;
-      if (filterPriority !== 'all' && ticket.priority !== filterPriority) return false;
+  // function getFilteredTickets() {
+  //   return tickets.filter(ticket => {
+  //     if (filterType !== 'all' && ticket.type !== filterType) return false;
+  //     if (filterStatus !== 'all' && ticket.status !== filterStatus) return false;
+  //     if (filterPriority !== 'all' && ticket.priority !== filterPriority) return false;
       
-      // Date filtering
-      const ticketDate = new Date(ticket.createdAt);
-      if (filterDateFrom && ticketDate < new Date(filterDateFrom)) return false;
-      if (filterDateTo && ticketDate > new Date(filterDateTo)) return false;
+  //     // Date filtering
+  //     const ticketDate = new Date(ticket.createdAt);
+  //     if (filterDateFrom && ticketDate < new Date(filterDateFrom)) return false;
+  //     if (filterDateTo && ticketDate > new Date(filterDateTo)) return false;
       
-      return true;
-    });
-  }
+  //     return true;
+  //   });
+  // }
 
   function resetFilters() {
   setFilterType('all');
@@ -42,17 +46,42 @@ export default function IssuesPage() {
   setFilterDateFrom('');
   setFilterDateTo('');
 }
+useEffect(() => {
+  setCurrentPage(1);
+}, [filterType, filterStatus, filterPriority]);
 
   useEffect(() => {
     async function fetchTickets() {
       setIsLoading(true);
-      const data = await fetch("/api/tickets")
-      const getTickets = await data.json()
-      setTickets(getTickets) 
+      
+      const params = new URLSearchParams({
+        type: filterType,
+        status: filterStatus,
+        priority: filterPriority,
+        page: String(currentPage),
+        limit: String(limit),
+          dateFrom: filterDateFrom,
+  dateTo: filterDateTo
+      })
+
+      // TODO: get  dateFrom: filterDateFrom and dateTo: filterDateTo handled in prisma
+
+      const res = await fetch(`/api/tickets?${params.toString()}`);
+      const data = await res.json();
+
+      console.log(data)
+
+      // const data = await fetch("/api/tickets")
+      // const getTickets = await data.json()
+      setTickets(data.data) 
+      setTotal(data.total)
+
       setIsLoading(false);
     }
     fetchTickets();
-  }, [])
+  }, [filterType, filterStatus, filterPriority, currentPage])
+
+  
   
   return (
     <div className={styles.container}>
@@ -121,7 +150,7 @@ export default function IssuesPage() {
             </tr>
           </thead>
           <tbody>
-            {getFilteredTickets().map((ticket) => (
+            {tickets.map((ticket) => (
               <tr 
                 key={ticket.id}
                 onClick={() => router.push(`/admin/issues/${ticket.id}`)}
@@ -137,7 +166,34 @@ export default function IssuesPage() {
             ))}
           </tbody>
         </table>
+
+        
+      )}
+
+      {total > 0 && (
+
+
+      <div className={styles.pagination}>
+  <button
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(p => p - 1)}
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {currentPage} of {Math.ceil(total / limit)}
+  </span>
+
+  <button
+    disabled={currentPage >= Math.ceil(total / limit)}
+    onClick={() => setCurrentPage(p => p + 1)}
+  >
+    Next
+  </button>
+</div>
       )}
     </div>
+    
   )
 }

@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 
 export async function POST(request: Request) {
@@ -29,10 +30,53 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
-  const tickets = await prisma.ticket.findMany({
-    orderBy: { createdAt: "desc" }, // Newest first
-  });
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
 
-  return NextResponse.json(tickets);
+  const type = searchParams.get("type");
+  const status = searchParams.get("status");
+  const priority = searchParams.get("priority");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.TicketWhereInput = {};
+
+  if (type && type !== "all") where.type = type;
+  if (status && status !== "all") where.status = status;
+  if (priority && priority !== "all") where.priority = priority;
+
+  if (dateFrom || dateTo) {
+    where.createdAt = {};
+
+    if (dateFrom) {
+      where.createdAt.gte = new Date(dateFrom);
+    }
+
+    if (dateTo) {
+      const end = new Date(dateTo);
+      end.setHours(23, 59, 59, 999);
+      where.createdAt.lte = end;
+    }
+  }
+
+  const [tickets, total] = await Promise.all([
+    prisma.ticket.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.ticket.count({ where }),
+  ]);
+
+  return NextResponse.json({
+    data: tickets,
+    total,
+    page,
+    limit,
+  });
 }

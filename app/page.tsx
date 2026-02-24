@@ -7,11 +7,12 @@ export default function HomePage() {
       <div className={styles.hero}>
         <h1 className={styles.title}>Signal Desk</h1>
         <p className={styles.description}>
-          A production-style issue management platform with workflow governance and AI-assisted triage.
+          A production-style issue management platform with workflow governance
+          and AI-assisted triage.
         </p>
         <p className={styles.subtitle}>
-  Designed to mirror real-world issue management workflows.
-</p>
+          Designed to mirror real-world issue management workflows.
+        </p>
 
         <div className={styles.actions}>
           <Link href="/submit" className={styles.buttonPrimary}>
@@ -54,9 +55,13 @@ export default function HomePage() {
         </div>
       </div>
       <div className={styles.summary}>
-        <p>Signal Desk was designed to model real-world issue management workflows. The system prioritizes clear state transitions, server-driven data management, and human-reviewed AI suggestions to reflect production-grade decision-making patterns.</p>
+        <p>
+          Signal Desk was designed to model real-world issue management
+          workflows. The system prioritizes clear state transitions,
+          server-driven data management, and human-reviewed AI suggestions to
+          reflect production-grade decision-making patterns.
+        </p>
       </div>
     </div>
-
-  )
+  );
 }
