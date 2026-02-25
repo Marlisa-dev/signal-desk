@@ -2,7 +2,6 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
     console.error("Error creating ticket:", error);
     return NextResponse.json(
       { error: "Failed to create ticket" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -34,6 +33,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   const type = searchParams.get("type");
+  const view = searchParams.get("view") ?? "active";
   const status = searchParams.get("status");
   const priority = searchParams.get("priority");
   const dateFrom = searchParams.get("dateFrom");
@@ -46,7 +46,21 @@ export async function GET(req: NextRequest) {
   const where: Prisma.TicketWhereInput = {};
 
   if (type && type !== "all") where.type = type;
-  if (status && status !== "all") where.status = status;
+
+// 1️⃣ If specific status is provided → it wins
+if (status && status !== "all") {
+  where.status = status;
+}
+
+// 2️⃣ Otherwise use view grouping
+else if (view === "active") {
+  where.status = {
+    in: ["open", "in-progress", "blocked"],
+  };
+} else if (view === "completed") {
+  where.status = "closed";
+}
+
   if (priority && priority !== "all") where.priority = priority;
 
   if (dateFrom || dateTo) {
