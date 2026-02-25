@@ -39,48 +39,68 @@ export default function IssuesPage() {
     router.push(`/admin/issues?${params.toString()}`);
   }
 
-  useEffect(() => {
-    async function fetchTickets() {
-      setIsLoading(true);
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("limit", String(limit));
-        const res = await fetch(`/api/tickets?${params.toString()}`);
+useEffect(() => {
+  let isMounted = true;
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch tickets");
-        }
+  async function fetchTickets(showLoader = false) {
+    try {
+      if (showLoader) setIsLoading(true);
 
-        const data = await res.json();
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("limit", String(limit));
 
-        setTickets(data.data);
-        setTotal(data.total);
+      const res = await fetch(`/api/tickets?${params.toString()}`);
 
-        const totalPages = Math.ceil(data.total / limit);
+      if (!res.ok) throw new Error("Failed to fetch tickets");
 
-        if (currentPage > totalPages && totalPages > 0) {
-          const updatedParams = new URLSearchParams(searchParams.toString());
-          updatedParams.set("page", String(totalPages));
-          router.replace(`/admin/issues?${updatedParams.toString()}`);
-          return;
-        }
-      } catch (error) {
-        setError("Unable to load tickets");
-        console.error(error);
-        setTickets([]);
-        setTotal(0);
-      } finally {
-        setIsLoading(false);
+      const data = await res.json();
+
+      if (!isMounted) return;
+
+      setTickets(data.data);
+      setTotal(data.total);
+      setError(null);
+
+      const totalPages = Math.ceil(data.total / limit);
+
+      if (currentPage > totalPages && totalPages > 0) {
+        const updatedParams = new URLSearchParams(searchParams.toString());
+        updatedParams.set("page", String(totalPages));
+        router.replace(`/admin/issues?${updatedParams.toString()}`);
+        return;
       }
-    }
 
-    fetchTickets();
-  }, [searchParams.toString()]);
+    } catch (error) {
+      if (!isMounted) return;
+      setError("Unable to load tickets");
+      console.error(error);
+    } finally {
+      if (showLoader && isMounted) setIsLoading(false);
+    }
+  }
+
+  // Initial load (show loader)
+  fetchTickets(true);
+
+  // Polling (no loader)
+  const interval = setInterval(() => {
+    fetchTickets(false);
+  }, 5000);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+  };
+
+}, [searchParams.toString()]);
+
   function changePage(page: number) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
     router.push(`/admin/issues?${params.toString()}`);
   }
+
+
   function resetFilters() {
     router.push("/admin/issues");
   }
