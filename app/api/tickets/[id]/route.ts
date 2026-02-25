@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { canTransition } from "@/lib/workflow";
 
 export async function GET(
   request: Request,
@@ -58,6 +59,36 @@ export async function PATCH(
         { status: 400 }
       );
     }
+
+    const existing = await prisma.ticket.findUnique({
+  where: { id: ticketId }
+});
+if (!existing) {
+  return NextResponse.json(
+    { error: "Ticket not found" },
+    { status: 404 }
+  );
+}
+const allowedTransitions: Record<string, string[]> = {
+  open: ["in_progress", "blocked"],
+  in_progress: ["blocked", "closed"],
+  blocked: ["in_progress"],
+  closed: ["open"]
+};
+
+if (!allowedTransitions[existing.status].includes(status)) {
+  return NextResponse.json(
+    { error: `Cannot transition from ${existing.status} to ${status}` },
+    { status: 400 }
+  );
+}
+
+if (!canTransition(existing.status, status)) {
+  return NextResponse.json(
+    { error: `Cannot transition from ${existing.status} to ${status}` },
+    { status: 400 }
+  );
+}
 
     const result = await prisma.ticket.updateMany({
       where: {

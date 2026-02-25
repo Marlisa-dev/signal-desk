@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { TicketStatus } from "@prisma/client";
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +32,6 @@ export async function POST(request: Request) {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-
   const type = searchParams.get("type");
   const view = searchParams.get("view") ?? "active";
   const status = searchParams.get("status");
@@ -47,19 +47,23 @@ export async function GET(req: NextRequest) {
 
   if (type && type !== "all") where.type = type;
 
-// 1️⃣ If specific status is provided → it wins
-if (status && status !== "all") {
-  where.status = status;
-}
+  // If specific status is provided → it wins
 
-// 2️⃣ Otherwise use view grouping
-else if (view === "active") {
-  where.status = {
-    in: ["open", "in-progress", "blocked"],
-  };
-} else if (view === "completed") {
-  where.status = "closed";
-}
+  function isTicketStatus(value: string): value is TicketStatus {
+    return Object.values(TicketStatus).includes(value as TicketStatus);
+  }
+  if (status && isTicketStatus(status)) {
+    where.status = status;
+  }
+
+  // Otherwise use view grouping
+  else if (view === "active") {
+    where.status = {
+      in: ["open", "in_progress", "blocked"],
+    };
+  } else if (view === "completed") {
+    where.status = "closed";
+  }
 
   if (priority && priority !== "all") where.priority = priority;
 
