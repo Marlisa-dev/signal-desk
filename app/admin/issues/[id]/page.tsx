@@ -132,6 +132,7 @@ const id = Array.isArray(idParam) ? idParam[0] : idParam;
         >
           <option value="open">Open</option>
           <option value="in-progress">In Progress</option>
+          <option value="blocked">Blocked</option>
           <option value="closed">Closed</option>
         </select>
 

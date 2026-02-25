@@ -17,6 +17,7 @@ export default function PriorityBadge({ priority }: { priority: string}) {
     fontWeight: '500',
     display: 'inline-block',
     textTransform: 'capitalize',
+    maxWidth: '50px',
   };
 
   return <span style={badgeStyle}>{priority}</span>

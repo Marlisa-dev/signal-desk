@@ -20,6 +20,7 @@ export default function TypeBadge({ ticketType }: { ticketType: string }) {
     fontWeight: '500',
     display: 'inline-block',
     textTransform: 'capitalize',
+    maxWidth: '50px',
   };
 
   return <span style={badgeStyle}>{ticketType}</span>;
