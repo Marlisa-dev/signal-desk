@@ -85,7 +85,7 @@ useEffect(() => {
   // Polling (no loader)
   const interval = setInterval(() => {
     fetchTickets(false);
-  }, 5000);
+  }, 50000);
 
   return () => {
     isMounted = false;

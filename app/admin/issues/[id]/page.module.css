@@ -82,3 +82,56 @@
 .backButton:hover {
   background-color: rgb(229, 231, 235);
 }
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* .statusRow button {
+  opacity: 0;
+}
+
+.statusRow:hover button {
+  opacity: 1;
+} */
+
+.editControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.iconButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.iconButton:hover {
+  opacity: 1;
+}
+
+.select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.saveButton,
+.cancelButton {
+  border: none;
+  background: #111;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background: #ccc;
+  color: #222;
+}
