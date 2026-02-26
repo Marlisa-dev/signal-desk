@@ -43,7 +43,7 @@ export default function Page() {
       const ticket = await response.json();
       setMessage({
         type: "success",
-        text: `Success! Ticket #${ticket.id} created.`,
+        text: `Success! Your ticket has been created.`,
       });
       setIsSubmitting(false);
       setSelectedFile(null);

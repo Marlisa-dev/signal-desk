@@ -33,7 +33,8 @@ export async function POST(request: Request) {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
-  const view = searchParams.get("view") ?? "active";
+  // const view = searchParams.get("view") ?? "active";
+  const view = searchParams.get("view");
   const status = searchParams.get("status");
   const priority = searchParams.get("priority");
   const dateFrom = searchParams.get("dateFrom");
@@ -80,6 +81,13 @@ export async function GET(req: NextRequest) {
       where.createdAt.lte = end;
     }
   }
+
+  console.log("STATUS PARAM:", status);
+console.log("VIEW PARAM:", view);
+console.log("FINAL WHERE:", where);
+
+console.log("DB URL:", process.env.DATABASE_URL);
+console.log("CWD:", process.cwd());
 
   const [tickets, total] = await Promise.all([
     prisma.ticket.findMany({

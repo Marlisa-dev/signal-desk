@@ -1,3 +1,5 @@
+import { TicketStatus } from "@prisma/client";
+
 export type Ticket = {
   id: number;
   title: string;
@@ -6,7 +8,7 @@ export type Ticket = {
   description: string;
   type: string;
   attachment: string | null;
-  status: string;
+  status: TicketStatus;
   priority: string;
   createdAt: string;
   updatedAt: string;

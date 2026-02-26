@@ -131,7 +131,7 @@ const id = Array.isArray(idParam) ? idParam[0] : idParam;
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="open">Open</option>
-          <option value="in-progress">In Progress</option>
+          <option value="in_progress">In Progress</option>
           <option value="blocked">Blocked</option>
           <option value="closed">Closed</option>
         </select>
