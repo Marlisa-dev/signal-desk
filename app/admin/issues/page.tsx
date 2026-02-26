@@ -9,7 +9,7 @@ import TypeBadge from "@/components/TypeBadge";
 
 export default function IssuesPage() {
   const searchParams = useSearchParams();
-  const router = useRouter()
+  const router = useRouter();
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,71 +35,68 @@ export default function IssuesPage() {
       params.set(key, value);
     }
 
-    params.set("page", "1"); 
+    params.set("page", "1");
     router.push(`/admin/issues?${params.toString()}`);
   }
 
-useEffect(() => {
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  async function fetchTickets(showLoader = false) {
-    try {
-      if (showLoader) setIsLoading(true);
+    async function fetchTickets(showLoader = false) {
+      try {
+        if (showLoader) setIsLoading(true);
 
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("limit", String(limit));
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("limit", String(limit));
 
-      const res = await fetch(`/api/tickets?${params.toString()}`);
+        const res = await fetch(`/api/tickets?${params.toString()}`);
 
-      if (!res.ok) throw new Error("Failed to fetch tickets");
+        if (!res.ok) throw new Error("Failed to fetch tickets");
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      setTickets(data.data);
-      setTotal(data.total);
-      setError(null);
+        setTickets(data.data);
+        setTotal(data.total);
+        setError(null);
 
-      const totalPages = Math.ceil(data.total / limit);
+        const totalPages = Math.ceil(data.total / limit);
 
-      if (currentPage > totalPages && totalPages > 0) {
-        const updatedParams = new URLSearchParams(searchParams.toString());
-        updatedParams.set("page", String(totalPages));
-        router.replace(`/admin/issues?${updatedParams.toString()}`);
-        return;
+        if (currentPage > totalPages && totalPages > 0) {
+          const updatedParams = new URLSearchParams(searchParams.toString());
+          updatedParams.set("page", String(totalPages));
+          router.replace(`/admin/issues?${updatedParams.toString()}`);
+          return;
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        setError("Unable to load tickets");
+        console.error(error);
+      } finally {
+        if (showLoader && isMounted) setIsLoading(false);
       }
-
-    } catch (error) {
-      if (!isMounted) return;
-      setError("Unable to load tickets");
-      console.error(error);
-    } finally {
-      if (showLoader && isMounted) setIsLoading(false);
     }
-  }
 
-  // Initial load (show loader)
-  fetchTickets(true);
+    // Initial load (show loader)
+    fetchTickets(tickets.length === 0);
+    // setIsLoading(true)
+    // Polling (no loader)
+    const interval = setInterval(() => {
+      fetchTickets(false);
+    }, 50000);
 
-  // Polling (no loader)
-  const interval = setInterval(() => {
-    fetchTickets(false);
-  }, 50000);
-
-  return () => {
-    isMounted = false;
-    clearInterval(interval);
-  };
-
-}, [searchParams.toString()]);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [searchParams.toString()]);
 
   function changePage(page: number) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
     router.push(`/admin/issues?${params.toString()}`);
   }
-
 
   function resetFilters() {
     router.push("/admin/issues");
@@ -230,5 +227,3 @@ useEffect(() => {
     </div>
   );
 }
-
-
