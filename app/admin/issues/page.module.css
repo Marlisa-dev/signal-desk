@@ -112,3 +112,35 @@
   background-color: rgb(27, 27, 27);
   transition: 0.2s ease-in-out;
 }
+
+.pagination{
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pageButton{
+  background-color: rgb(52, 52, 52);
+  color: white;
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pageButton:disabled {
+  background-color: rgb(120, 120, 120);
+  color: rgb(200, 200, 200);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.pageButton:hover {
+  background-color: rgb(27, 27, 27);
+}
+.pageButton:disabled:hover {
+  background-color: rgb(120, 120, 120);
+}
+.pageCount{
+  margin: 0.4rem;
+}

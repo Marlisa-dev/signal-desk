@@ -207,17 +207,19 @@ useEffect(() => {
       {total > 0 && (
         <div className={styles.pagination}>
           <button
+            className={styles.pageButton}
             disabled={currentPage === 1}
             onClick={() => changePage(currentPage - 1)}
           >
             Previous
           </button>
 
-          <span>
+          <span className={styles.pageCount}>
             Page {currentPage} of {Math.ceil(total / limit)}
           </span>
 
           <button
+            className={styles.pageButton}
             disabled={currentPage >= Math.ceil(total / limit)}
             onClick={() => changePage(currentPage + 1)}
           >
