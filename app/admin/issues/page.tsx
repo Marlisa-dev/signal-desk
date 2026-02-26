@@ -95,7 +95,7 @@ export default function IssuesPage() {
   function changePage(page: number) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
-    router.push(`/admin/issues?${params.toString()}`);
+    router.replace(`/admin/issues?${params.toString()}`);
   }
 
   function resetFilters() {
@@ -165,13 +165,12 @@ export default function IssuesPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Title</th>
               <th>Name</th>
               <th>Type</th>
               <th>Status</th>
               <th>Priority</th>
-              <th>Created</th>
+              <th>Date Created</th>
             </tr>
           </thead>
           <tbody>
@@ -180,7 +179,6 @@ export default function IssuesPage() {
                 key={ticket.id}
                 onClick={() => router.push(`/admin/issues/${ticket.id}`)}
               >
-                <td>{ticket.id}</td>
                 <td>{ticket.title}</td>
                 <td>
                   {ticket.firstName} {ticket.lastName}
