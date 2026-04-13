@@ -4,6 +4,8 @@ A full-stack issue tracking system for managing bug reports, ideas, and feedback
 
 ## Live Link
 
+See it Live here - https://signal-desk-delta.vercel.app/
+
 ## Features
 
 **Public Submission**
