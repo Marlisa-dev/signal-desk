@@ -11,66 +11,111 @@ import TypeBadge from "@/components/TypeBadge";
 export default function IssueDetailPage() {
   const params = useParams();
   const idParam = params.id;
-const id = Array.isArray(idParam) ? idParam[0] : idParam;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
-  const [conflict, setConflict] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [status, setStatus] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [isEditingPriority, setIsEditingPriority] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [conflict, setConflict] = useState(false);
+  const [editStatus, setEditStatus] = useState('');
+  const [editPriority, setEditPriority] = useState('');
 
   useEffect(() => {
     async function fetchTicket() {
       setIsLoading(true);
-
-      const res = await fetch(`/api/tickets/${id}`);
-      const getTicket = await res.json();
-
-      console.log("Fetched ticket:", getTicket);
-
+      const data = await fetch(`/api/tickets/${id}`);
+      const getTicket = await data.json();
       setTicket(getTicket);
-      setStatus(getTicket.status);
+      setEditStatus(getTicket.status);
+      setEditPriority(getTicket.priority);
       setIsLoading(false);
     }
 
     if (id) fetchTicket();
   }, [id]);
 
-  async function handleSave() {
+  async function handleSaveStatus() {
     if (!ticket) return;
+    setIsSaving(true);
 
-    
-    
-    console.log("Sending:", {
-  status,
-  updatedAt: ticket?.updatedAt
-});
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: editStatus,
+          updatedAt: ticket.updatedAt
+        })
+      });
 
-    const res = await fetch(`/api/tickets/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        status,
-        updatedAt: ticket.updatedAt,
-      }),
-    });
+      if (response.status === 409) {
+        setConflict(true);
+        const fresh = await fetch(`/api/tickets/${ticket.id}`);
+        const latest = await fresh.json();
+        setTicket(latest);
+        setEditStatus(latest.status);
+        setEditPriority(latest.priority);
+        return;
+      }
 
-    if (res.status === 409) {
-      setConflict(true);
-
-      const fresh = await fetch(`/api/tickets/${id}`);
-      const latest = await fresh.json();
-
-      setTicket(latest);
-      setStatus(latest.status);
-      return;
+      if (response.ok) {
+        const updatedTicket = await response.json();
+        setTicket(updatedTicket);
+        setEditStatus(updatedTicket.status);
+        setIsEditingStatus(false);
+        setConflict(false);
+      } else {
+        const error = await response.json();
+        alert(error.error);
+      }
+    } catch (error) {
+      alert('Failed to save changes');
+    } finally {
+      setIsSaving(false);
     }
+  }
 
-    const updated = await res.json();
-    setTicket(updated);
-    setStatus(updated.status);
-    setIsEditing(false);
-    setConflict(false);
+  async function handleSavePriority() {
+    if (!ticket) return;
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priority: editPriority,
+          updatedAt: ticket.updatedAt
+        })
+      });
+
+      if (response.status === 409) {
+        setConflict(true);
+        const fresh = await fetch(`/api/tickets/${ticket.id}`);
+        const latest = await fresh.json();
+        setTicket(latest);
+        setEditStatus(latest.status);
+        setEditPriority(latest.priority);
+        return;
+      }
+
+      if (response.ok) {
+        const updatedTicket = await response.json();
+        setTicket(updatedTicket);
+        setEditPriority(updatedTicket.priority);
+        setIsEditingPriority(false);
+        setConflict(false);
+      } else {
+        const error = await response.json();
+        alert(error.error);
+      }
+    } catch (error) {
+      alert('Failed to save changes');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   if (isLoading) {
@@ -88,9 +133,7 @@ const id = Array.isArray(idParam) ? idParam[0] : idParam;
       </Link>
 
       <div className={styles.header}>
-        <h1>
-          Issue #{ticket.id}: {ticket.title}
-        </h1>
+        <h1>Issue #{ticket.id}: {ticket.title}</h1>
       </div>
 
       <div className={styles.section}>
@@ -109,58 +152,100 @@ const id = Array.isArray(idParam) ? idParam[0] : idParam;
             <TypeBadge ticketType={ticket.type} />
           </div>
 
-<div className={styles.detailItem}>
-  <span className={styles.detailLabel}>Status</span>
+          <div className={styles.detailItem}>
+            <span className={styles.detailLabel}>Status</span>
+            <div className={styles.statusRow}>
+              {!isEditingStatus ? (
+                <>
+                  <StatusBadge status={ticket.status} />
+                  <button
+                    className={styles.iconButton}
+                    onClick={() => setIsEditingStatus(true)}
+                  >
+                    ✏️
+                  </button>
+                </>
+              ) : (
+                <div className={styles.editControls}>
+                  <select
+                    className={styles.select}
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value)}
+                  >
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="closed">Closed</option>
+                  </select>
 
-  <div className={styles.statusRow}>
-    {!isEditing ? (
-      <>
-        <StatusBadge status={ticket.status} />
-        <button
-          className={styles.iconButton}
-          onClick={() => setIsEditing(true)}
-        >
-          ✏️
-        </button>
-      </>
-    ) : (
-      <div className={styles.editControls}>
-        <select
-          className={styles.select}
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="blocked">Blocked</option>
-          <option value="closed">Closed</option>
-        </select>
+                  <button
+                    className={styles.saveButton}
+                    onClick={handleSaveStatus}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? '...' : '✓'}
+                  </button>
 
-        <button
-          className={styles.saveButton}
-          onClick={handleSave}
-        >
-          ✓
-        </button>
-
-        <button
-          className={styles.cancelButton}
-          onClick={() => {
-            setStatus(ticket.status);
-            setIsEditing(false);
-            setConflict(false);
-          }}
-        >
-          ✕
-        </button>
-      </div>
-    )}
-  </div>
-</div>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => {
+                      setEditStatus(ticket.status);
+                      setIsEditingStatus(false);
+                      setConflict(false);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Priority</span>
-            <PriorityBadge priority={ticket.priority} />
+            <div className={styles.statusRow}>
+              {!isEditingPriority ? (
+                <>
+                  <PriorityBadge priority={ticket.priority} />
+                  <button
+                    className={styles.iconButton}
+                    onClick={() => setIsEditingPriority(true)}
+                  >
+                    ✏️
+                  </button>
+                </>
+              ) : (
+                <div className={styles.editControls}>
+                  <select
+                    className={styles.select}
+                    value={editPriority}
+                    onChange={(e) => setEditPriority(e.target.value)}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+
+                  <button
+                    className={styles.saveButton}
+                    onClick={handleSavePriority}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? '...' : '✓'}
+                  </button>
+
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => {
+                      setEditPriority(ticket.priority);
+                      setIsEditingPriority(false);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={styles.detailItem}>

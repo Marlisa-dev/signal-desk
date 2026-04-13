@@ -103,15 +103,23 @@
 }
 
 .iconButton {
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
+  padding: 0.25rem;
   opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
 .iconButton:hover {
   opacity: 1;
+}
+
+.editControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .select {
@@ -134,4 +142,37 @@
 .cancelButton {
   background: #ccc;
   color: #222;
+}
+
+.saveButton {
+  background-color: rgb(34, 197, 94);
+  color: white;
+}
+
+.saveButton:hover {
+  background-color: rgb(22, 163, 74);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background-color: rgb(239, 68, 68);
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: rgb(220, 38, 38);
+}
+
+.conflictBanner {
+  background-color: rgb(254, 243, 199);
+  border: 1px solid rgb(251, 191, 36);
+  color: rgb(146, 64, 14);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
 }
