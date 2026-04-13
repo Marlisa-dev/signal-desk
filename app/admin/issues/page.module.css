@@ -144,3 +144,23 @@
 .pageCount{
   margin: 0.4rem;
 }
+
+
+.searchBar {
+  margin-bottom: 1rem;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(209, 213, 219);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: rgb(52, 52, 52);
+  box-shadow: 0 0 0 2px rgba(52, 52, 52, 0.1);
+}

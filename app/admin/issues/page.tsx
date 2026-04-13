@@ -22,6 +22,8 @@ export default function IssuesPage() {
   const filterDateFrom = searchParams.get("dateFrom") ?? "";
   const filterDateTo = searchParams.get("dateTo") ?? "";
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const rawPage = Number(searchParams.get("page"));
   const currentPage = !isNaN(rawPage) && rawPage > 0 ? rawPage : 1;
 
@@ -102,9 +104,45 @@ export default function IssuesPage() {
     router.push("/admin/issues");
   }
 
+  // Search Feature
+  function getFilteredTickets() {
+    return tickets.filter((ticket) => {
+      // Search filter
+      if (
+        searchQuery &&
+        !ticket.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Existing filters
+      if (filterType !== "all" && ticket.type !== filterType) return false;
+      if (filterStatus !== "all" && ticket.status !== filterStatus)
+        return false;
+      if (filterPriority !== "all" && ticket.priority !== filterPriority)
+        return false;
+
+      const ticketDate = new Date(ticket.createdAt);
+      if (filterDateFrom && ticketDate < new Date(filterDateFrom)) return false;
+      if (filterDateTo && ticketDate > new Date(filterDateTo)) return false;
+
+      return true;
+    });
+  }
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>Issues</h1>
+
+      <div className={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
 
       <div className={styles.filters}>
         <select
@@ -174,7 +212,7 @@ export default function IssuesPage() {
             </tr>
           </thead>
           <tbody>
-            {tickets.map((ticket) => (
+            {getFilteredTickets().map((ticket) => (
               <tr
                 key={ticket.id}
                 onClick={() => router.push(`/admin/issues/${ticket.id}`)}
