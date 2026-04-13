@@ -27,7 +27,7 @@ export default function Page() {
       description: formData.get("description") as string,
       type: formData.get("type") as string,
       priority: formData.get("priority") as string,
-      attachment: selectedFile,
+      attachment: selectedFile ? selectedFile.name : null,
     };
 
     // Send to API
