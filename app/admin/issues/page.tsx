@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Ticket } from "@/lib/types";
 import styles from "./page.module.css";
@@ -7,7 +7,9 @@ import StatusBadge from "@/components/StatusBadge";
 import PriorityBadge from "@/components/PriorityBadge";
 import TypeBadge from "@/components/TypeBadge";
 
-export default function IssuesPage() {
+export const dynamic = "force-dynamic";
+
+function IssuesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -36,7 +38,6 @@ export default function IssuesPage() {
     } else {
       params.set(key, value);
     }
-
     params.set("page", "1");
     router.push(`/admin/issues?${params.toString()}`);
   }
@@ -80,10 +81,8 @@ export default function IssuesPage() {
       }
     }
 
-    // Initial load (show loader)
     fetchTickets(tickets.length === 0);
-    // setIsLoading(true)
-    // Polling (no loader)
+
     const interval = setInterval(() => {
       fetchTickets(false);
     }, 50000);
@@ -92,6 +91,7 @@ export default function IssuesPage() {
       isMounted = false;
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()]);
 
   function changePage(page: number) {
@@ -104,18 +104,14 @@ export default function IssuesPage() {
     router.push("/admin/issues");
   }
 
-  // Search Feature
   function getFilteredTickets() {
     return tickets.filter((ticket) => {
-      // Search filter
       if (
         searchQuery &&
         !ticket.title.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false;
       }
-
-      // Existing filters
       if (filterType !== "all" && ticket.type !== filterType) return false;
       if (filterStatus !== "all" && ticket.status !== filterStatus)
         return false;
@@ -180,14 +176,12 @@ export default function IssuesPage() {
             type="date"
             value={filterDateFrom}
             onChange={(e) => updateParam("dateFrom", e.target.value)}
-            placeholder="From"
           />
           <span>to</span>
           <input
             type="date"
             value={filterDateTo}
             onChange={(e) => updateParam("dateTo", e.target.value)}
-            placeholder="To"
           />
         </div>
         <button onClick={resetFilters} className={styles.resetButton}>
@@ -197,6 +191,8 @@ export default function IssuesPage() {
 
       {isLoading ? (
         <div className={styles.loading}>Loading...</div>
+      ) : error ? (
+        <div className={styles.error}>{error}</div>
       ) : tickets.length === 0 ? (
         <div className={styles.empty}>No tickets yet</div>
       ) : (
@@ -261,5 +257,13 @@ export default function IssuesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function IssuesPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Loading...</div>}>
+      <IssuesContent />
+    </Suspense>
   );
 }
