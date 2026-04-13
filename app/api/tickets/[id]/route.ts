@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { canTransition } from "@/lib/workflow";
+// import { canTransition } from "@/lib/workflow";
 
 export async function GET(
   request: Request,
@@ -51,7 +51,7 @@ export async function PATCH(
     const ticketId = parseInt(id);
 
     const body = await request.json();
-    const { status, updatedAt } = body;
+    const { status, priority, updatedAt } = body; 
 
     if (!status || !updatedAt) {
       return NextResponse.json(
@@ -69,6 +69,8 @@ if (!existing) {
     { status: 404 }
   );
 }
+
+// Status transitions rules
 const allowedTransitions: Record<string, string[]> = {
   open: ["in_progress", "blocked"],
   in_progress: ["blocked", "closed"],
@@ -83,21 +85,21 @@ if (!allowedTransitions[existing.status].includes(status)) {
   );
 }
 
-if (!canTransition(existing.status, status)) {
-  return NextResponse.json(
-    { error: `Cannot transition from ${existing.status} to ${status}` },
-    { status: 400 }
-  );
-}
+
 
     const result = await prisma.ticket.updateMany({
       where: {
         id: ticketId,
         updatedAt: new Date(updatedAt)
       },
-      data: { status }
+      data: { 
+        status,
+        ...(priority && { priority }) 
+      },
+      
     });
 
+    // to prevent race conditions
     if (result.count === 0) {
       return NextResponse.json(
         { error: "Ticket modified by another user." },
